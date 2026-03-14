@@ -12,7 +12,10 @@
       "Bash(git commit:*)",
       "Bash(git remote:*)",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx sharp-cli:*)",
+      "Bash(sips -z 180 180 public/logo.png --out src/app/icon.png)",
+      "Bash(sips -z 48 48 public/logo.png --out public/favicon.png)"
     ],
     "additionalDirectories": [
       "/Users/yokosukantaro/Desktop/tuitta-_demo/src/app/api/posts/[id]",

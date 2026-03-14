@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Tuitta",
   description: "Twitter風SNSアプリ",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

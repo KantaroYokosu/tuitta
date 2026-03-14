@@ -49,33 +49,29 @@ export default function ProfilePage() {
   const [editHeaderImage, setEditHeaderImage] = useState<string | undefined>(undefined);
 
   const [cropTarget, setCropTarget] = useState<"avatar" | "header" | null>(null);
-  const [cropRawImage, setCropRawImage] = useState<string>("");
+  const [cropRawImage, setCropRawImage] = useState("");
 
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const headerInputRef = useRef<HTMLInputElement>(null);
 
   const isOwnProfile = currentUser ? handle === currentUser.handle : false;
 
+  // 認証チェック
   useEffect(() => {
     const checkAuth = async () => {
       const res = await fetch("/api/auth/me");
       const data = await res.json();
-      if (!data.user) {
-        router.push("/login");
-        return;
-      }
+      if (!data.user) { router.push("/login"); return; }
       setCurrentUser(data.user);
     };
     checkAuth();
   }, [router]);
 
+  // プロフィール取得
   useEffect(() => {
     const fetchProfile = async () => {
       const res = await fetch(`/api/users/${encodeURIComponent(handle)}`);
-      if (!res.ok) {
-        setNotFound(true);
-        return;
-      }
+      if (!res.ok) { setNotFound(true); return; }
       const data = await res.json();
       setUser(data.user);
       setPosts(data.posts);
@@ -83,6 +79,7 @@ export default function ProfilePage() {
     fetchProfile();
   }, [handle]);
 
+  // ---- 編集系 ----
   const startEditing = () => {
     if (!user) return;
     setEditName(user.name);
@@ -95,8 +92,7 @@ export default function ProfilePage() {
   const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const dataUrl = await readFileAsDataURL(file);
-    setCropRawImage(dataUrl);
+    setCropRawImage(await readFileAsDataURL(file));
     setCropTarget("avatar");
     if (avatarInputRef.current) avatarInputRef.current.value = "";
   };
@@ -104,67 +100,39 @@ export default function ProfilePage() {
   const handleHeaderSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const dataUrl = await readFileAsDataURL(file);
-    setCropRawImage(dataUrl);
+    setCropRawImage(await readFileAsDataURL(file));
     setCropTarget("header");
     if (headerInputRef.current) headerInputRef.current.value = "";
   };
 
   const handleCropDone = (croppedDataUrl: string) => {
-    if (cropTarget === "avatar") {
-      setEditAvatarImage(croppedDataUrl);
-    } else if (cropTarget === "header") {
-      setEditHeaderImage(croppedDataUrl);
-    }
+    if (cropTarget === "avatar") setEditAvatarImage(croppedDataUrl);
+    else if (cropTarget === "header") setEditHeaderImage(croppedDataUrl);
     setCropTarget(null);
     setCropRawImage("");
   };
 
-  const handleCropCancel = () => {
-    setCropTarget(null);
-    setCropRawImage("");
-  };
+  const handleCropCancel = () => { setCropTarget(null); setCropRawImage(""); };
 
   const saveProfile = async () => {
     if (!user || editName.trim() === "") return;
-
     await fetch(`/api/users/${encodeURIComponent(handle)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: editName,
-        bio: editBio,
-        avatarImage: editAvatarImage,
-        headerImage: editHeaderImage,
-      }),
+      body: JSON.stringify({ name: editName, bio: editBio, avatarImage: editAvatarImage, headerImage: editHeaderImage }),
     });
-
-    setUser({
-      ...user,
-      name: editName,
-      bio: editBio,
-      avatarImage: editAvatarImage,
-      headerImage: editHeaderImage,
-    });
+    setUser({ ...user, name: editName, bio: editBio, avatarImage: editAvatarImage, headerImage: editHeaderImage });
     setIsEditing(false);
   };
 
+  // ---- アクション系 ----
   const handleFollow = async () => {
     if (!user) return;
-
     if (user.isFollowing) {
-      await fetch("/api/follow", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ followingId: user.id }),
-      });
+      await fetch("/api/follow", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ followingId: user.id }) });
       setUser({ ...user, isFollowing: false, followers: user.followers - 1 });
     } else {
-      await fetch("/api/follow", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ followingId: user.id }),
-      });
+      await fetch("/api/follow", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ followingId: user.id }) });
       setUser({ ...user, isFollowing: true, followers: user.followers + 1 });
     }
   };
@@ -172,39 +140,15 @@ export default function ProfilePage() {
   const handleLike = async (id: string) => {
     const post = posts.find((p) => p.id === id);
     if (!post) return;
-
-    if (post.isLiked) {
-      await fetch(`/api/posts/${id}/like`, { method: "DELETE" });
-    } else {
-      await fetch(`/api/posts/${id}/like`, { method: "POST" });
-    }
-
-    setPosts(
-      posts.map((p) =>
-        p.id === id
-          ? { ...p, isLiked: !p.isLiked, likes: p.isLiked ? p.likes - 1 : p.likes + 1 }
-          : p
-      )
-    );
+    await fetch(`/api/posts/${id}/like`, { method: post.isLiked ? "DELETE" : "POST" });
+    setPosts(posts.map((p) => p.id === id ? { ...p, isLiked: !p.isLiked, likes: p.isLiked ? p.likes - 1 : p.likes + 1 } : p));
   };
 
   const handleRepost = async (id: string) => {
     const post = posts.find((p) => p.id === id);
     if (!post) return;
-
-    if (post.isReposted) {
-      await fetch(`/api/posts/${id}/repost`, { method: "DELETE" });
-    } else {
-      await fetch(`/api/posts/${id}/repost`, { method: "POST" });
-    }
-
-    setPosts(
-      posts.map((p) =>
-        p.id === id
-          ? { ...p, isReposted: !p.isReposted, reposts: p.isReposted ? p.reposts - 1 : p.reposts + 1 }
-          : p
-      )
-    );
+    await fetch(`/api/posts/${id}/repost`, { method: post.isReposted ? "DELETE" : "POST" });
+    setPosts(posts.map((p) => p.id === id ? { ...p, isReposted: !p.isReposted, reposts: p.isReposted ? p.reposts - 1 : p.reposts + 1 } : p));
   };
 
   const handleDelete = async (id: string) => {
@@ -217,17 +161,16 @@ export default function ProfilePage() {
     setActiveCommentPostId(activeCommentPostId === id ? null : id);
   };
 
+  // ---- レンダリング ----
   if (notFound) {
     return (
-      <div className="min-h-screen bg-white flex justify-center">
+      <div className="page-wrapper">
         {currentUser && <Sidebar currentUser={currentUser} />}
-        <main className="w-full max-w-[600px] border-x border-gray-200">
-          <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4">
-            <Link href="/" className="text-gray-900 hover:text-gray-500 mr-4">← 戻る</Link>
+        <main className="main-column">
+          <header className="sticky-header">
+            <Link href="/" className="text-primary hover:text-muted mr-4">← 戻る</Link>
           </header>
-          <div className="p-8 text-center text-gray-400">
-            ユーザーが見つかりません
-          </div>
+          <div className="p-8 text-center text-muted">ユーザーが見つかりません</div>
         </main>
       </div>
     );
@@ -235,8 +178,8 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-white flex justify-center items-center">
-        <p className="text-gray-400">読み込み中...</p>
+      <div className="page-wrapper items-center">
+        <p className="text-muted">読み込み中...</p>
       </div>
     );
   }
@@ -245,28 +188,22 @@ export default function ProfilePage() {
   const displayHeaderImage = isEditing ? editHeaderImage : user.headerImage;
 
   return (
-    <div className="min-h-screen bg-white flex justify-center">
+    <div className="page-wrapper">
       {currentUser && <Sidebar currentUser={currentUser} />}
-      <main className="w-full max-w-[600px] border-x border-gray-200">
-        <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4 flex items-center gap-4">
-          <Link href="/" className="text-gray-900 hover:text-gray-500">
-            ← 戻る
-          </Link>
+
+      <main className="main-column">
+        <header className="sticky-header flex items-center gap-4">
+          <Link href="/" className="text-primary hover:text-muted">← 戻る</Link>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">{user.name}</h1>
-            <p className="text-sm text-gray-500">{posts.length}件のポスト</p>
+            <h1 className="text-xl font-bold text-primary">{user.name}</h1>
+            <p className="text-sm text-muted">{posts.length}件のポスト</p>
           </div>
         </header>
 
-        <div className="p-4 border-b border-gray-200">
-          {/* ヘッダー画像エリア */}
-          <div
-            className="h-32 bg-gray-100 rounded-xl mb-4 relative overflow-hidden cursor-pointer"
-            onClick={() => isEditing && headerInputRef.current?.click()}
-          >
-            {displayHeaderImage && (
-              <img src={displayHeaderImage} alt="ヘッダー" className="w-full h-full object-cover" />
-            )}
+        <div className="p-4 divider">
+          {/* ヘッダー画像 */}
+          <div className="h-32 bg-gray-100 rounded-xl mb-4 relative overflow-hidden cursor-pointer" onClick={() => isEditing && headerInputRef.current?.click()}>
+            {displayHeaderImage && <img src={displayHeaderImage} alt="ヘッダー" className="w-full h-full object-cover" />}
             {isEditing && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                 <span className="text-white text-sm bg-black/60 px-3 py-1 rounded-full">画像を変更</span>
@@ -275,22 +212,13 @@ export default function ProfilePage() {
             <input ref={headerInputRef} type="file" accept="image/*" onChange={handleHeaderSelect} className="hidden" />
           </div>
 
-          {/* アバターと編集ボタン */}
+          {/* アバター + 編集/フォローボタン */}
           <div className="flex items-end justify-between -mt-16 mb-4">
-            <div
-              className="relative cursor-pointer"
-              onClick={() => isEditing && avatarInputRef.current?.click()}
-            >
+            <div className="relative cursor-pointer" onClick={() => isEditing && avatarInputRef.current?.click()}>
               {displayAvatarImage ? (
-                <img
-                  src={displayAvatarImage}
-                  alt={user.name}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-white"
-                />
+                <img src={displayAvatarImage} alt={user.name} className="avatar avatar-lg border-4 border-white" />
               ) : (
-                <div
-                  className={`w-24 h-24 rounded-full ${user.avatarColor} flex items-center justify-center text-white text-3xl font-bold border-4 border-white`}
-                >
+                <div className={`avatar avatar-lg ${user.avatarColor} flex items-center justify-center text-white text-3xl font-bold border-4 border-white`}>
                   {user.name[0]}
                 </div>
               )}
@@ -301,101 +229,54 @@ export default function ProfilePage() {
               )}
               <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarSelect} className="hidden" />
             </div>
+
             {isOwnProfile && !isEditing && (
-              <button
-                onClick={startEditing}
-                className="border border-gray-300 text-gray-900 font-bold px-4 py-1.5 rounded-full hover:bg-gray-100 transition-colors text-sm"
-              >
-                プロフィールを編集
-              </button>
+              <button onClick={startEditing} className="btn-outline px-4 py-1.5 text-sm">プロフィールを編集</button>
             )}
             {!isOwnProfile && currentUser && (
-              <button
-                onClick={handleFollow}
-                className={`font-bold px-4 py-1.5 rounded-full transition-colors text-sm ${
-                  user.isFollowing
-                    ? "border border-gray-300 text-gray-900 hover:border-red-500 hover:text-red-500"
-                    : "bg-[#4BACC5] text-white hover:bg-[#3a9ab3]"
-                }`}
-              >
+              <button onClick={handleFollow} className={`font-bold px-4 py-1.5 rounded-full text-sm transition-colors ${user.isFollowing ? "btn-outline hover:border-red-500 hover:text-red-500" : "btn-primary"}`}>
                 {user.isFollowing ? "フォロー中" : "フォローする"}
               </button>
             )}
           </div>
 
+          {/* 編集フォーム or プロフィール表示 */}
           {isEditing ? (
             <div className="space-y-4">
               <div>
-                <label className="text-gray-500 text-sm block mb-1">名前</label>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  maxLength={50}
-                  className="w-full bg-transparent border border-gray-300 rounded-lg px-3 py-2 text-gray-900 outline-none focus:border-[#4BACC5]"
-                />
+                <label className="text-muted text-sm block mb-1">名前</label>
+                <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} maxLength={50} className="input-field" />
               </div>
               <div>
-                <label className="text-gray-500 text-sm block mb-1">自己紹介</label>
-                <textarea
-                  value={editBio}
-                  onChange={(e) => setEditBio(e.target.value)}
-                  maxLength={160}
-                  rows={3}
-                  className="w-full bg-transparent border border-gray-300 rounded-lg px-3 py-2 text-gray-900 outline-none focus:border-[#4BACC5] resize-none"
-                />
-                <p className="text-gray-400 text-xs text-right">{editBio.length}/160</p>
+                <label className="text-muted text-sm block mb-1">自己紹介</label>
+                <textarea value={editBio} onChange={(e) => setEditBio(e.target.value)} maxLength={160} rows={3} className="input-field resize-none" />
+                <p className="text-muted text-xs text-right">{editBio.length}/160</p>
               </div>
               <div className="flex gap-2 justify-end">
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="border border-gray-300 text-gray-900 px-4 py-1.5 rounded-full hover:bg-gray-100 transition-colors text-sm"
-                >
-                  キャンセル
-                </button>
-                <button
-                  onClick={saveProfile}
-                  disabled={editName.trim() === ""}
-                  className="bg-[#4BACC5] hover:bg-[#3a9ab3] text-white font-bold px-4 py-1.5 rounded-full disabled:opacity-50 transition-colors text-sm"
-                >
-                  保存
-                </button>
+                <button onClick={() => setIsEditing(false)} className="btn-outline px-4 py-1.5 text-sm">キャンセル</button>
+                <button onClick={saveProfile} disabled={editName.trim() === ""} className="btn-primary px-4 py-1.5 text-sm">保存</button>
               </div>
             </div>
           ) : (
             <>
-              <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
-              <p className="text-gray-500">{user.handle}</p>
-
-              {user.bio && (
-                <p className="text-gray-900 mt-3">{user.bio}</p>
-              )}
-
+              <h2 className="text-xl font-bold text-primary">{user.name}</h2>
+              <p className="text-muted">{user.handle}</p>
+              {user.bio && <p className="text-primary mt-3">{user.bio}</p>}
               <div className="flex gap-4 mt-3">
-                <span className="text-sm">
-                  <span className="text-gray-900 font-bold">{user.following}</span>
-                  <span className="text-gray-500"> フォロー</span>
-                </span>
-                <span className="text-sm">
-                  <span className="text-gray-900 font-bold">{user.followers}</span>
-                  <span className="text-gray-500"> フォロワー</span>
-                </span>
+                <span className="text-sm"><span className="text-primary font-bold">{user.following}</span> <span className="text-muted">フォロー</span></span>
+                <span className="text-sm"><span className="text-primary font-bold">{user.followers}</span> <span className="text-muted">フォロワー</span></span>
               </div>
-
-              <p className="text-gray-500 text-sm mt-3">
-                {new Date(user.createdAt).toLocaleDateString("ja-JP", {
-                  year: "numeric",
-                  month: "long",
-                })}
-                からTuittaを利用しています
+              <p className="text-muted text-sm mt-3">
+                {new Date(user.createdAt).toLocaleDateString("ja-JP", { year: "numeric", month: "long" })}からTuittaを利用しています
               </p>
             </>
           )}
         </div>
 
+        {/* 投稿一覧 */}
         <div>
           {posts.length === 0 ? (
-            <p className="p-8 text-center text-gray-400">まだ投稿がありません</p>
+            <p className="p-8 text-center text-muted">まだ投稿がありません</p>
           ) : (
             posts.map((post) => (
               <PostCard
@@ -414,10 +295,10 @@ export default function ProfilePage() {
         </div>
       </main>
 
-      {/* 右サイドバー: コメントパネル */}
+      {/* コメントサイドバー */}
       {activeCommentPostId && currentUser && (
-        <div className="w-80 shrink-0 hidden xl:block">
-          <div className="fixed w-80 h-screen border-l border-gray-200">
+        <div className="right-sidebar">
+          <div className="right-sidebar-inner">
             <CommentPanel
               key={activeCommentPostId}
               postId={activeCommentPostId}

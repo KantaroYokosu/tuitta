@@ -22,86 +22,56 @@ export default function SignupPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, handle, password }),
     });
-
     const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error);
-      setIsLoading(false);
-      return;
-    }
-
+    if (!res.ok) { setError(data.error); setIsLoading(false); return; }
     router.push("/");
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4">
+    <div className="page-wrapper items-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">
-          Tuittaに登録
-        </h1>
+        <div className="flex justify-center mb-6">
+          <img src="/logo.png" alt="Tuitta" className="w-16 h-16 rounded-xl" />
+        </div>
+        <h1 className="text-3xl font-bold text-primary text-center mb-8">Tuittaに登録</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-gray-500 text-sm block mb-1">名前</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={50}
-              required
-              className="w-full bg-transparent border border-gray-300 rounded-lg px-3 py-2.5 text-gray-900 outline-none focus:border-[#4BACC5]"
-              placeholder="田中太郎"
-            />
+            <label className="text-muted text-sm block mb-1">名前</label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} maxLength={50} required className="input-field" placeholder="田中太郎" />
           </div>
 
           <div>
-            <label className="text-gray-500 text-sm block mb-1">ハンドル名</label>
-            <div className="flex items-center border border-gray-300 rounded-lg focus-within:border-[#4BACC5]">
-              <span className="text-gray-400 pl-3">@</span>
+            <label className="text-muted text-sm block mb-1">ハンドル名</label>
+            <div className="flex items-center input-field !rounded-lg">
+              <span className="text-muted mr-1">@</span>
               <input
                 type="text"
                 value={handle}
                 onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))}
                 maxLength={20}
                 required
-                className="w-full bg-transparent px-2 py-2.5 text-gray-900 outline-none"
+                className="flex-1 bg-transparent text-primary outline-none"
                 placeholder="tanaka"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-gray-500 text-sm block mb-1">パスワード</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              minLength={4}
-              required
-              className="w-full bg-transparent border border-gray-300 rounded-lg px-3 py-2.5 text-gray-900 outline-none focus:border-[#4BACC5]"
-              placeholder="4文字以上"
-            />
+            <label className="text-muted text-sm block mb-1">パスワード</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={4} required className="input-field" placeholder="4文字以上" />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-sm">{error}</p>
-          )}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-[#4BACC5] hover:bg-[#3a9ab3] disabled:opacity-50 text-white font-bold py-2.5 rounded-full transition-colors"
-          >
+          <button type="submit" disabled={isLoading} className="btn-primary w-full py-2.5">
             {isLoading ? "登録中..." : "アカウントを作成"}
           </button>
         </form>
 
-        <p className="text-gray-500 text-sm text-center mt-6">
-          既にアカウントをお持ちですか？{" "}
-          <Link href="/login" className="text-[#4BACC5] hover:underline">
-            ログイン
-          </Link>
+        <p className="text-muted text-sm text-center mt-6">
+          既にアカウントをお持ちですか？ <Link href="/login" className="text-accent hover:underline">ログイン</Link>
         </p>
       </div>
     </div>

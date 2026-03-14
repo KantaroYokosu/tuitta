@@ -1,13 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
+  --background: #ffffff;
+  --foreground: #111827;
+  --accent: #4BACC5;
+  --accent-hover: #3a9ab3;
+  --border: #e5e7eb;
+  --muted: #9ca3af;
+  --subtle: #f9fafb;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -16,4 +22,185 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ========== Layout ========== */
+
+.page-wrapper {
+  min-height: 100vh;
+  background: var(--background);
+  display: flex;
+  justify-content: center;
+}
+
+.main-column {
+  width: 100%;
+  max-width: 600px;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem;
+}
+
+.right-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  display: none;
+}
+@media (min-width: 1280px) {
+  .right-sidebar { display: block; }
+}
+
+.right-sidebar-inner {
+  position: fixed;
+  width: 320px;
+  height: 100vh;
+  border-left: 1px solid var(--border);
+}
+
+/* ========== Buttons ========== */
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 9999px;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:disabled { opacity: 0.5; cursor: default; }
+
+.btn-outline {
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  font-weight: 700;
+  border-radius: 9999px;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.btn-outline:hover { background: var(--subtle); }
+
+.btn-danger {
+  background: #dc2626;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 9999px;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.btn-danger:hover { background: #b91c1c; }
+
+/* ========== Form ========== */
+
+.input-field {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input-field:focus { border-color: var(--accent); }
+
+.input-round {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--foreground);
+  outline: none;
+  font-size: 0.875rem;
+  resize: none;
+  transition: border-color 0.15s;
+}
+.input-round:focus { border-color: var(--accent); }
+
+/* ========== Cards & Sections ========== */
+
+.divider {
+  border-bottom: 1px solid var(--border);
+}
+
+.card-hover {
+  transition: background 0.15s;
+}
+.card-hover:hover { background: var(--subtle); }
+
+/* ========== Text ========== */
+
+.text-primary { color: var(--foreground); }
+.text-muted { color: var(--muted); }
+.text-accent { color: var(--accent); }
+
+/* ========== Modal overlay ========== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 24rem;
+  width: 100%;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+}
+
+/* ========== Action icons (like, repost, comment) ========== */
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color 0.15s;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+/* ========== Avatar ========== */
+
+.avatar {
+  border-radius: 9999px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.avatar-sm { width: 1.75rem; height: 1.75rem; }
+.avatar-md { width: 2.5rem; height: 2.5rem; }
+.avatar-lg { width: 6rem; height: 6rem; }
+
+/* ========== Sidebar ========== */
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 9999px;
+  color: #4b5563;
+  transition: background 0.15s, color 0.15s;
+}
+.sidebar-link:hover {
+  background: var(--subtle);
+  color: var(--foreground);
 }
