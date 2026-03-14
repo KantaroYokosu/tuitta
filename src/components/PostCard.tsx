@@ -41,19 +41,24 @@ export default function PostCard({ post, onLike, onRepost, onDelete, isOwn }: Po
     setLoadingComments(false);
   };
 
+  const [submitting, setSubmitting] = useState(false);
+
   const submitComment = async () => {
-    if (commentText.trim() === "") return;
+    if (commentText.trim() === "" || submitting) return;
+    setSubmitting(true);
+    const text = commentText;
+    setCommentText("");
     await fetch(`/api/posts/${post.id}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: commentText }),
+      body: JSON.stringify({ content: text }),
     });
-    setCommentText("");
     // コメントを再取得
     const res = await fetch(`/api/posts/${post.id}/comments`);
     const data = await res.json();
     setComments(data);
     setCommentCount(data.length);
+    setSubmitting(false);
   };
 
   return (
