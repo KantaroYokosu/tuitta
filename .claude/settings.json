@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mysql --version)",
+      "Bash(brew list:*)",
+      "Bash(brew install:*)",
+      "Bash(mysql -u:*)",
+      "Bash(npm install:*)",
+      "Bash(git init:*)",
+      "Bash(gh repo:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "additionalDirectories": [
+      "/Users/yokosukantaro/Desktop/tuitta-_demo/src/app/api/posts/[id]",
+      "/Users/yokosukantaro/Desktop/tuitta-_demo/src/app/api/users",
+      "/Users/yokosukantaro/Desktop/tuitta-_demo/src/app"
+    ]
+  }
+}
