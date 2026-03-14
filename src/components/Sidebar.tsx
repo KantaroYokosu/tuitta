@@ -28,6 +28,8 @@ export default function Sidebar({ currentUser }: SidebarProps) {
 
           <nav className="space-y-1">
             <SidebarLink icon={<HomeIcon />} label="ホーム" href="/" />
+            <SidebarLink icon={<SearchIcon />} label="検索" href="/search" />
+            <SidebarLink icon={<BookmarkIcon />} label="ブックマーク" href="/bookmarks" />
             <SidebarLink icon={<UserIcon />} label="プロフィール" href={`/${encodeURIComponent(currentUser.handle)}`} />
             <button onClick={handleLogout} className="sidebar-link w-full text-left">
               <LogoutIcon />
@@ -68,6 +70,22 @@ function HomeIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8z" />
+    </svg>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+    </svg>
+  );
+}
+
+function BookmarkIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
     </svg>
   );
 }

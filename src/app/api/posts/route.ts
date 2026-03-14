@@ -19,14 +19,14 @@ export async function GET() {
      ORDER BY p.created_at DESC`
   );
 
-  // 自分がリポスト済みの投稿IDを取得
+  // 自分がリポスト・ブックマーク済みの投稿IDを取得
   let repostedIds: Set<number> = new Set();
+  let bookmarkedIds: Set<number> = new Set();
   if (sessionUser) {
-    const { rows: myReposts } = await pool.query(
-      "SELECT post_id FROM reposts WHERE user_id = $1",
-      [sessionUser.id]
-    );
+    const { rows: myReposts } = await pool.query("SELECT post_id FROM reposts WHERE user_id = $1", [sessionUser.id]);
     repostedIds = new Set(myReposts.map((r: Record<string, unknown>) => Number(r.post_id)));
+    const { rows: myBookmarks } = await pool.query("SELECT post_id FROM bookmarks WHERE user_id = $1", [sessionUser.id]);
+    bookmarkedIds = new Set(myBookmarks.map((r: Record<string, unknown>) => Number(r.post_id)));
   }
 
   const posts = rows.map((row: Record<string, unknown>) => ({
@@ -47,6 +47,7 @@ export async function GET() {
     comments: Number(row.comment_count),
     createdAt: new Date(row.created_at as string).toISOString(),
     repostedBy: row.last_reposter_name || undefined,
+    isBookmarked: bookmarkedIds.has(Number(row.id)),
   }));
 
   return NextResponse.json(posts);

@@ -18,4 +18,5 @@ export type Post = {
   comments: number;
   imageUrl?: string;
   repostedBy?: string;
+  isBookmarked: boolean;
 };

@@ -12,11 +12,12 @@ type PostCardProps = {
   onRepost: (id: string) => void;
   onDelete: (id: string) => void;
   onComment: (id: string) => void;
+  onBookmark?: (id: string) => void;
   isOwn: boolean;
   isCommentOpen?: boolean;
 };
 
-export default function PostCard({ post, onLike, onRepost, onDelete, onComment, isOwn, isCommentOpen }: PostCardProps) {
+export default function PostCard({ post, onLike, onRepost, onDelete, onComment, onBookmark, isOwn, isCommentOpen }: PostCardProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   return (
@@ -94,6 +95,15 @@ export default function PostCard({ post, onLike, onRepost, onDelete, onComment, 
                 </svg>
                 <span className="text-sm">{post.likes}</span>
               </button>
+
+              {/* ブックマーク */}
+              {onBookmark && (
+                <button onClick={() => onBookmark(post.id)} className={`action-btn ${post.isBookmarked ? "text-accent" : "hover:text-accent"}`} title="ブックマーク">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill={post.isBookmarked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={post.isBookmarked ? 0 : 1.5}>
+                    <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -106,12 +116,8 @@ export default function PostCard({ post, onLike, onRepost, onDelete, onComment, 
             <h3 className="text-xl font-bold text-primary mb-2">ポストを削除しますか？</h3>
             <p className="text-muted text-sm mb-6">この操作は取り消せません。</p>
             <div className="flex flex-col gap-3">
-              <button onClick={() => { onDelete(post.id); setShowDeleteModal(false); }} className="btn-danger w-full py-3">
-                削除する
-              </button>
-              <button onClick={() => setShowDeleteModal(false)} className="btn-outline w-full py-3">
-                キャンセル
-              </button>
+              <button onClick={() => { onDelete(post.id); setShowDeleteModal(false); }} className="btn-danger w-full py-3">削除する</button>
+              <button onClick={() => setShowDeleteModal(false)} className="btn-outline w-full py-3">キャンセル</button>
             </div>
           </div>
         </div>

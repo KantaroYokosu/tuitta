@@ -58,12 +58,12 @@ export async function GET(
   );
 
   let repostedIds: Set<number> = new Set();
+  let bookmarkedIds: Set<number> = new Set();
   if (sessionUser) {
-    const { rows: myReposts } = await pool.query(
-      "SELECT post_id FROM reposts WHERE user_id = $1",
-      [sessionUser.id]
-    );
+    const { rows: myReposts } = await pool.query("SELECT post_id FROM reposts WHERE user_id = $1", [sessionUser.id]);
     repostedIds = new Set(myReposts.map((r: Record<string, unknown>) => Number(r.post_id)));
+    const { rows: myBookmarks } = await pool.query("SELECT post_id FROM bookmarks WHERE user_id = $1", [sessionUser.id]);
+    bookmarkedIds = new Set(myBookmarks.map((r: Record<string, unknown>) => Number(r.post_id)));
   }
 
   return NextResponse.json({
@@ -97,6 +97,7 @@ export async function GET(
       isReposted: repostedIds.has(Number(row.id)),
       comments: Number(row.comment_count),
       createdAt: new Date(row.created_at as string).toISOString(),
+      isBookmarked: bookmarkedIds.has(Number(row.id)),
     })),
   });
 }

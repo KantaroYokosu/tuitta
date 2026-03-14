@@ -73,6 +73,17 @@ export default function Home() {
     setActiveCommentPostId(activeCommentPostId === id ? null : id);
   };
 
+  const handleBookmark = async (id: string) => {
+    const post = posts.find((p) => p.id === id);
+    if (!post) return;
+    await fetch("/api/bookmarks", {
+      method: post.isBookmarked ? "DELETE" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ postId: id }),
+    });
+    setPosts(posts.map((p) => p.id === id ? { ...p, isBookmarked: !p.isBookmarked } : p));
+  };
+
   if (!currentUser) {
     return (
       <div className="page-wrapper items-center">
@@ -105,6 +116,7 @@ export default function Home() {
               onRepost={handleRepost}
               onDelete={handleDelete}
               onComment={handleComment}
+              onBookmark={handleBookmark}
               isOwn={post.user.id === currentUser.id}
               isCommentOpen={activeCommentPostId === post.id}
             />
