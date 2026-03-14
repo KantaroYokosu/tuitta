@@ -300,7 +300,7 @@ export default function ProfilePage() {
                 onDelete={handleDelete}
                 onComment={handleComment}
                 onBookmark={handleBookmark}
-                isOwn={post.user.id === user.id}
+                isOwn={post.user.id === currentUser?.id}
                 isCommentOpen={activeCommentPostId === post.id}
               />
             ))
