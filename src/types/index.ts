@@ -17,4 +17,5 @@ export type Post = {
   isReposted: boolean;
   comments: number;
   imageUrl?: string;
+  repostedBy?: string;
 };

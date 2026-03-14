@@ -11,7 +11,9 @@ export async function GET() {
   const { rows } = await pool.query(
     `SELECT p.*, u.name AS user_name, u.handle, u.avatar_color, u.avatar_image,
        (SELECT COUNT(*) FROM reposts r WHERE r.post_id = p.id) AS repost_count,
-       (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count
+       (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
+       (SELECT ru.name FROM reposts r2 JOIN users ru ON r2.user_id = ru.id
+        WHERE r2.post_id = p.id ORDER BY r2.created_at DESC LIMIT 1) AS last_reposter_name
      FROM posts p
      JOIN users u ON p.user_id = u.id
      ORDER BY p.created_at DESC`
@@ -44,6 +46,7 @@ export async function GET() {
     isReposted: repostedIds.has(Number(row.id)),
     comments: Number(row.comment_count),
     createdAt: new Date(row.created_at as string).toISOString(),
+    repostedBy: row.last_reposter_name || undefined,
   }));
 
   return NextResponse.json(posts);

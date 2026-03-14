@@ -56,7 +56,6 @@ export default function ProfilePage() {
 
   const isOwnProfile = currentUser ? handle === currentUser.handle : false;
 
-  // ログイン中のユーザーを確認
   useEffect(() => {
     const checkAuth = async () => {
       const res = await fetch("/api/auth/me");
@@ -93,7 +92,6 @@ export default function ProfilePage() {
     setIsEditing(true);
   };
 
-  // 画像を選んだらまずクロッパーを開く
   const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -112,7 +110,6 @@ export default function ProfilePage() {
     if (headerInputRef.current) headerInputRef.current.value = "";
   };
 
-  // クロッパーで「適用」が押された
   const handleCropDone = (croppedDataUrl: string) => {
     if (cropTarget === "avatar") {
       setEditAvatarImage(croppedDataUrl);
@@ -222,13 +219,13 @@ export default function ProfilePage() {
 
   if (notFound) {
     return (
-      <div className="min-h-screen bg-black flex justify-center">
+      <div className="min-h-screen bg-white flex justify-center">
         {currentUser && <Sidebar currentUser={currentUser} />}
-        <main className="w-full max-w-[600px] border-x border-gray-700">
-          <header className="sticky top-0 z-10 bg-black/80 backdrop-blur-md border-b border-gray-700 p-4">
-            <Link href="/" className="text-white hover:text-gray-300 mr-4">← 戻る</Link>
+        <main className="w-full max-w-[600px] border-x border-gray-200">
+          <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4">
+            <Link href="/" className="text-gray-900 hover:text-gray-500 mr-4">← 戻る</Link>
           </header>
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-gray-400">
             ユーザーが見つかりません
           </div>
         </main>
@@ -238,8 +235,8 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-black flex justify-center items-center">
-        <p className="text-gray-500">読み込み中...</p>
+      <div className="min-h-screen bg-white flex justify-center items-center">
+        <p className="text-gray-400">読み込み中...</p>
       </div>
     );
   }
@@ -248,23 +245,23 @@ export default function ProfilePage() {
   const displayHeaderImage = isEditing ? editHeaderImage : user.headerImage;
 
   return (
-    <div className="min-h-screen bg-black flex justify-center">
+    <div className="min-h-screen bg-white flex justify-center">
       {currentUser && <Sidebar currentUser={currentUser} />}
-      <main className="w-full max-w-[600px] border-x border-gray-700">
-        <header className="sticky top-0 z-10 bg-black/80 backdrop-blur-md border-b border-gray-700 p-4 flex items-center gap-4">
-          <Link href="/" className="text-white hover:text-gray-300">
+      <main className="w-full max-w-[600px] border-x border-gray-200">
+        <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4 flex items-center gap-4">
+          <Link href="/" className="text-gray-900 hover:text-gray-500">
             ← 戻る
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-white">{user.name}</h1>
+            <h1 className="text-xl font-bold text-gray-900">{user.name}</h1>
             <p className="text-sm text-gray-500">{posts.length}件のポスト</p>
           </div>
         </header>
 
-        <div className="p-4 border-b border-gray-700">
+        <div className="p-4 border-b border-gray-200">
           {/* ヘッダー画像エリア */}
           <div
-            className="h-32 bg-gray-800 rounded-xl mb-4 relative overflow-hidden cursor-pointer"
+            className="h-32 bg-gray-100 rounded-xl mb-4 relative overflow-hidden cursor-pointer"
             onClick={() => isEditing && headerInputRef.current?.click()}
           >
             {displayHeaderImage && (
@@ -288,11 +285,11 @@ export default function ProfilePage() {
                 <img
                   src={displayAvatarImage}
                   alt={user.name}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-black"
+                  className="w-24 h-24 rounded-full object-cover border-4 border-white"
                 />
               ) : (
                 <div
-                  className={`w-24 h-24 rounded-full ${user.avatarColor} flex items-center justify-center text-white text-3xl font-bold border-4 border-black`}
+                  className={`w-24 h-24 rounded-full ${user.avatarColor} flex items-center justify-center text-white text-3xl font-bold border-4 border-white`}
                 >
                   {user.name[0]}
                 </div>
@@ -307,7 +304,7 @@ export default function ProfilePage() {
             {isOwnProfile && !isEditing && (
               <button
                 onClick={startEditing}
-                className="border border-gray-600 text-white font-bold px-4 py-1.5 rounded-full hover:bg-gray-800 transition-colors text-sm"
+                className="border border-gray-300 text-gray-900 font-bold px-4 py-1.5 rounded-full hover:bg-gray-100 transition-colors text-sm"
               >
                 プロフィールを編集
               </button>
@@ -317,8 +314,8 @@ export default function ProfilePage() {
                 onClick={handleFollow}
                 className={`font-bold px-4 py-1.5 rounded-full transition-colors text-sm ${
                   user.isFollowing
-                    ? "border border-gray-600 text-white hover:border-red-500 hover:text-red-500"
-                    : "bg-white text-black hover:bg-gray-200"
+                    ? "border border-gray-300 text-gray-900 hover:border-red-500 hover:text-red-500"
+                    : "bg-[#4BACC5] text-white hover:bg-[#3a9ab3]"
                 }`}
               >
                 {user.isFollowing ? "フォロー中" : "フォローする"}
@@ -335,7 +332,7 @@ export default function ProfilePage() {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   maxLength={50}
-                  className="w-full bg-transparent border border-gray-600 rounded-lg px-3 py-2 text-white outline-none focus:border-sky-500"
+                  className="w-full bg-transparent border border-gray-300 rounded-lg px-3 py-2 text-gray-900 outline-none focus:border-[#4BACC5]"
                 />
               </div>
               <div>
@@ -345,21 +342,21 @@ export default function ProfilePage() {
                   onChange={(e) => setEditBio(e.target.value)}
                   maxLength={160}
                   rows={3}
-                  className="w-full bg-transparent border border-gray-600 rounded-lg px-3 py-2 text-white outline-none focus:border-sky-500 resize-none"
+                  className="w-full bg-transparent border border-gray-300 rounded-lg px-3 py-2 text-gray-900 outline-none focus:border-[#4BACC5] resize-none"
                 />
-                <p className="text-gray-500 text-xs text-right">{editBio.length}/160</p>
+                <p className="text-gray-400 text-xs text-right">{editBio.length}/160</p>
               </div>
               <div className="flex gap-2 justify-end">
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="border border-gray-600 text-white px-4 py-1.5 rounded-full hover:bg-gray-800 transition-colors text-sm"
+                  className="border border-gray-300 text-gray-900 px-4 py-1.5 rounded-full hover:bg-gray-100 transition-colors text-sm"
                 >
                   キャンセル
                 </button>
                 <button
                   onClick={saveProfile}
                   disabled={editName.trim() === ""}
-                  className="bg-white text-black font-bold px-4 py-1.5 rounded-full hover:bg-gray-200 disabled:opacity-50 transition-colors text-sm"
+                  className="bg-[#4BACC5] hover:bg-[#3a9ab3] text-white font-bold px-4 py-1.5 rounded-full disabled:opacity-50 transition-colors text-sm"
                 >
                   保存
                 </button>
@@ -367,20 +364,20 @@ export default function ProfilePage() {
             </div>
           ) : (
             <>
-              <h2 className="text-xl font-bold text-white">{user.name}</h2>
+              <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
               <p className="text-gray-500">{user.handle}</p>
 
               {user.bio && (
-                <p className="text-white mt-3">{user.bio}</p>
+                <p className="text-gray-900 mt-3">{user.bio}</p>
               )}
 
               <div className="flex gap-4 mt-3">
                 <span className="text-sm">
-                  <span className="text-white font-bold">{user.following}</span>
+                  <span className="text-gray-900 font-bold">{user.following}</span>
                   <span className="text-gray-500"> フォロー</span>
                 </span>
                 <span className="text-sm">
-                  <span className="text-white font-bold">{user.followers}</span>
+                  <span className="text-gray-900 font-bold">{user.followers}</span>
                   <span className="text-gray-500"> フォロワー</span>
                 </span>
               </div>
@@ -398,7 +395,7 @@ export default function ProfilePage() {
 
         <div>
           {posts.length === 0 ? (
-            <p className="p-8 text-center text-gray-500">まだ投稿がありません</p>
+            <p className="p-8 text-center text-gray-400">まだ投稿がありません</p>
           ) : (
             posts.map((post) => (
               <PostCard
@@ -420,7 +417,7 @@ export default function ProfilePage() {
       {/* 右サイドバー: コメントパネル */}
       {activeCommentPostId && currentUser && (
         <div className="w-80 shrink-0 hidden xl:block">
-          <div className="fixed w-80 h-screen border-l border-gray-700">
+          <div className="fixed w-80 h-screen border-l border-gray-200">
             <CommentPanel
               key={activeCommentPostId}
               postId={activeCommentPostId}

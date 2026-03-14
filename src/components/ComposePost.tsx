@@ -13,15 +13,9 @@ export default function ComposePost({ onPost, currentUser }: ComposePostProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ユーザーが画像を選んだときに呼ばれる関数
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // FileReader: ファイルの中身を読み取るブラウザAPI
-    // ここでは画像ファイルを「Data URL」という文字列に変換している
-    // Data URLは "data:image/png;base64,iVBOR..." のような形式で、
-    // <img src="..."> にそのまま渡せる
     const reader = new FileReader();
     reader.onload = () => {
       setImagePreview(reader.result as string);
@@ -29,10 +23,8 @@ export default function ComposePost({ onPost, currentUser }: ComposePostProps) {
     reader.readAsDataURL(file);
   };
 
-  // 選択した画像を取り消す
   const handleRemoveImage = () => {
     setImagePreview(null);
-    // file inputの値もリセットする（同じ画像を再選択できるようにするため）
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -46,7 +38,7 @@ export default function ComposePost({ onPost, currentUser }: ComposePostProps) {
   };
 
   return (
-    <div className="border-b border-gray-700 p-4">
+    <div className="border-b border-gray-200 p-4">
       <div className="flex gap-3">
         {currentUser.avatarImage ? (
           <img src={currentUser.avatarImage} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover shrink-0" />
@@ -62,13 +54,12 @@ export default function ComposePost({ onPost, currentUser }: ComposePostProps) {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="いまどうしてる？"
-            className="w-full bg-transparent text-white text-lg placeholder-gray-500 outline-none resize-none min-h-[80px]"
+            className="w-full bg-transparent text-gray-900 text-lg placeholder-gray-400 outline-none resize-none min-h-[80px]"
             maxLength={140}
           />
 
-          {/* 画像プレビュー: imagePreviewがnullでないときだけ表示 */}
           {imagePreview && (
-            <div className="relative mt-2 rounded-2xl overflow-hidden border border-gray-700">
+            <div className="relative mt-2 rounded-2xl overflow-hidden border border-gray-200">
               <img
                 src={imagePreview}
                 alt="プレビュー"
@@ -83,9 +74,8 @@ export default function ComposePost({ onPost, currentUser }: ComposePostProps) {
             </div>
           )}
 
-          <div className="flex items-center justify-between border-t border-gray-700 pt-3 mt-2">
+          <div className="flex items-center justify-between border-t border-gray-200 pt-3 mt-2">
             <div className="flex items-center gap-2">
-              {/* 画像選択ボタン: 非表示のfile inputをボタンクリックで起動する */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -95,7 +85,7 @@ export default function ComposePost({ onPost, currentUser }: ComposePostProps) {
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="text-sky-500 hover:text-sky-400 hover:bg-sky-500/10 rounded-full p-2 transition-colors"
+                className="text-[#4BACC5] hover:text-[#3a9ab3] hover:bg-[#4BACC5]/10 rounded-full p-2 transition-colors"
                 title="画像を追加"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -104,14 +94,14 @@ export default function ComposePost({ onPost, currentUser }: ComposePostProps) {
                   <path d="M21 15l-5-5L5 21" />
                 </svg>
               </button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-400">
                 {content.length}/140
               </span>
             </div>
             <button
               onClick={handleSubmit}
               disabled={content.trim() === "" && !imagePreview}
-              className="bg-sky-500 hover:bg-sky-600 disabled:opacity-50 disabled:hover:bg-sky-500 text-white font-bold px-5 py-2 rounded-full transition-colors"
+              className="bg-[#4BACC5] hover:bg-[#3a9ab3] disabled:opacity-50 disabled:hover:bg-[#4BACC5] text-white font-bold px-5 py-2 rounded-full transition-colors"
             >
               ポストする
             </button>

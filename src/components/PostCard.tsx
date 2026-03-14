@@ -21,7 +21,15 @@ export default function PostCard({ post, onLike, onRepost, onDelete, onComment, 
 
   return (
     <>
-      <div className={`border-b border-gray-700 p-4 hover:bg-gray-900/50 transition-colors ${isCommentOpen ? "bg-gray-900/30" : ""}`}>
+      <div className={`border-b border-gray-200 p-4 hover:bg-gray-50/50 transition-colors ${isCommentOpen ? "bg-gray-50/30" : ""}`}>
+        {post.repostedBy && (
+          <div className="flex items-center gap-2 ml-12 mb-1 text-gray-400 text-xs">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <path d="M17 1l4 4-4 4" /><path d="M3 11V9a4 4 0 014-4h14" /><path d="M7 23l-4-4 4-4" /><path d="M21 13v2a4 4 0 01-4 4H3" />
+            </svg>
+            <span>{post.repostedBy}がリポスト</span>
+          </div>
+        )}
         <div className="flex gap-3">
           {post.user.avatarImage ? (
             <img
@@ -38,20 +46,20 @@ export default function PostCard({ post, onLike, onRepost, onDelete, onComment, 
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <Link href={`/${encodeURIComponent(post.user.handle)}`} className="font-bold text-white truncate hover:underline">
+              <Link href={`/${encodeURIComponent(post.user.handle)}`} className="font-bold text-gray-900 truncate hover:underline">
                 {post.user.name}
               </Link>
               <Link href={`/${encodeURIComponent(post.user.handle)}`} className="text-gray-500 truncate hover:underline">
                 {post.user.handle}
               </Link>
-              <span className="text-gray-500">·</span>
-              <span className="text-gray-500 whitespace-nowrap text-sm">
+              <span className="text-gray-400">·</span>
+              <span className="text-gray-400 whitespace-nowrap text-sm">
                 {formatTimeAgo(post.createdAt)}
               </span>
               {isOwn && (
                 <button
                   onClick={() => setShowDeleteModal(true)}
-                  className="ml-auto text-gray-500 hover:text-red-500 transition-colors"
+                  className="ml-auto text-gray-400 hover:text-red-500 transition-colors"
                   title="削除"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -60,11 +68,11 @@ export default function PostCard({ post, onLike, onRepost, onDelete, onComment, 
                 </button>
               )}
             </div>
-            <p className="text-white mt-1 whitespace-pre-wrap break-words">
+            <p className="text-gray-900 mt-1 whitespace-pre-wrap break-words">
               {post.content}
             </p>
             {post.imageUrl && (
-              <div className="mt-3 rounded-2xl overflow-hidden border border-gray-700">
+              <div className="mt-3 rounded-2xl overflow-hidden border border-gray-200">
                 <img
                   src={post.imageUrl}
                   alt="投稿画像"
@@ -77,7 +85,7 @@ export default function PostCard({ post, onLike, onRepost, onDelete, onComment, 
               <button
                 onClick={() => onComment(post.id)}
                 className={`flex items-center gap-1 transition-colors ${
-                  isCommentOpen ? "text-sky-500" : "text-gray-500 hover:text-sky-500"
+                  isCommentOpen ? "text-[#4BACC5]" : "text-gray-400 hover:text-[#4BACC5]"
                 }`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5}>
@@ -92,7 +100,7 @@ export default function PostCard({ post, onLike, onRepost, onDelete, onComment, 
                 className={`flex items-center gap-1 transition-colors ${
                   post.isReposted
                     ? "text-green-500"
-                    : "text-gray-500 hover:text-green-500"
+                    : "text-gray-400 hover:text-green-500"
                 }`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
@@ -110,7 +118,7 @@ export default function PostCard({ post, onLike, onRepost, onDelete, onComment, 
                 className={`flex items-center gap-1 group transition-colors ${
                   post.isLiked
                     ? "text-pink-500"
-                    : "text-gray-500 hover:text-pink-500"
+                    : "text-gray-400 hover:text-pink-500"
                 }`}
               >
                 <svg
@@ -136,9 +144,9 @@ export default function PostCard({ post, onLike, onRepost, onDelete, onComment, 
 
       {/* 削除確認モーダル */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-gray-900 rounded-2xl p-6 max-w-sm w-full">
-            <h3 className="text-xl font-bold text-white mb-2">ポストを削除しますか？</h3>
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">ポストを削除しますか？</h3>
             <p className="text-gray-500 text-sm mb-6">この操作は取り消せません。</p>
             <div className="flex flex-col gap-3">
               <button
@@ -152,7 +160,7 @@ export default function PostCard({ post, onLike, onRepost, onDelete, onComment, 
               </button>
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="w-full border border-gray-600 text-white font-bold py-3 rounded-full hover:bg-gray-800 transition-colors"
+                className="w-full border border-gray-300 text-gray-900 font-bold py-3 rounded-full hover:bg-gray-100 transition-colors"
               >
                 キャンセル
               </button>

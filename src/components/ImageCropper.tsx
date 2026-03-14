@@ -17,7 +17,6 @@ export default function ImageCropper({
   onCrop,
   onCancel,
 }: ImageCropperProps) {
-  // 初期ズームを0.5（50%）にして画像全体が見えるようにする
   const [scale, setScale] = useState(0.5);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -82,13 +81,12 @@ export default function ImageCropper({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
-      <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-lg mx-4">
-        <h3 className="text-white font-bold text-lg mb-4">画像を調整</h3>
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-lg mx-4 shadow-xl">
+        <h3 className="text-gray-900 font-bold text-lg mb-4">画像を調整</h3>
 
-        {/* クロップエリア */}
         <div
-          className="relative overflow-hidden bg-black mx-auto"
+          className="relative overflow-hidden bg-gray-100 mx-auto"
           style={{ aspectRatio }}
           id="crop-area"
         >
@@ -103,7 +101,6 @@ export default function ImageCropper({
             </div>
           )}
 
-          {/* 画像 — width/height 100% + object-fit:contain で枠内に収める */}
           <img
             ref={imgRef}
             src={imageUrl}
@@ -121,7 +118,6 @@ export default function ImageCropper({
           />
         </div>
 
-        {/* ズームスライダー — 最小0.3倍〜最大3倍 */}
         <div className="flex items-center gap-3 mt-4">
           <span className="text-gray-400 text-sm">-</span>
           <input
@@ -131,7 +127,7 @@ export default function ImageCropper({
             step={0.05}
             value={scale}
             onChange={(e) => setScale(Number(e.target.value))}
-            className="flex-1 accent-sky-500"
+            className="flex-1 accent-[#4BACC5]"
           />
           <span className="text-gray-400 text-sm">+</span>
         </div>
@@ -139,13 +135,13 @@ export default function ImageCropper({
         <div className="flex gap-2 justify-end mt-4">
           <button
             onClick={onCancel}
-            className="border border-gray-600 text-white px-4 py-1.5 rounded-full hover:bg-gray-800 transition-colors text-sm"
+            className="border border-gray-300 text-gray-900 px-4 py-1.5 rounded-full hover:bg-gray-100 transition-colors text-sm"
           >
             キャンセル
           </button>
           <button
             onClick={handleCrop}
-            className="bg-white text-black font-bold px-4 py-1.5 rounded-full hover:bg-gray-200 transition-colors text-sm"
+            className="bg-[#4BACC5] hover:bg-[#3a9ab3] text-white font-bold px-4 py-1.5 rounded-full transition-colors text-sm"
           >
             適用
           </button>

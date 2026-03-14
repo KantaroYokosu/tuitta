@@ -101,18 +101,18 @@ export default function Home() {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-black flex justify-center items-center">
-        <p className="text-gray-500">読み込み中...</p>
+      <div className="min-h-screen bg-white flex justify-center items-center">
+        <p className="text-gray-400">読み込み中...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black flex justify-center">
+    <div className="min-h-screen bg-white flex justify-center">
       <Sidebar currentUser={currentUser} />
-      <main className="w-full max-w-[600px] border-x border-gray-700">
-        <header className="sticky top-0 z-10 bg-black/80 backdrop-blur-md border-b border-gray-700 p-4">
-          <h1 className="text-xl font-bold text-white">ホーム</h1>
+      <main className="w-full max-w-[600px] border-x border-gray-200">
+        <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4">
+          <h1 className="text-xl font-bold text-gray-900">ホーム</h1>
         </header>
         <ComposePost onPost={handlePost} currentUser={currentUser} />
         <div>
@@ -134,7 +134,7 @@ export default function Home() {
 
       {/* 右サイドバー: コメントが開いてたらコメント欄、なければトレンド */}
       <div className="w-80 shrink-0 hidden xl:block">
-        <div className="fixed w-80 h-screen border-l border-gray-700">
+        <div className="fixed w-80 h-screen border-l border-gray-200">
           {activeCommentPostId ? (
             <CommentPanel
               key={activeCommentPostId}
@@ -144,8 +144,8 @@ export default function Home() {
             />
           ) : (
             <div className="p-4">
-              <div className="bg-gray-900 rounded-2xl p-4">
-                <h2 className="text-xl font-bold text-white mb-4">トレンド</h2>
+              <div className="bg-gray-50 rounded-2xl p-4">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">トレンド</h2>
                 <TrendItem category="テクノロジー" topic="Next.js" posts="1.2万" />
                 <TrendItem category="プログラミング" topic="TypeScript" posts="8,500" />
                 <TrendItem category="トレンド" topic="React" posts="5,200" />
@@ -168,9 +168,9 @@ function TrendItem({
   posts: string;
 }) {
   return (
-    <div className="py-3 hover:bg-gray-800 -mx-4 px-4 cursor-pointer transition-colors">
+    <div className="py-3 hover:bg-gray-100 -mx-4 px-4 cursor-pointer transition-colors">
       <p className="text-gray-500 text-xs">{category}</p>
-      <p className="text-white font-bold">{topic}</p>
+      <p className="text-gray-900 font-bold">{topic}</p>
       <p className="text-gray-500 text-xs">{posts}件のポスト</p>
     </div>
   );

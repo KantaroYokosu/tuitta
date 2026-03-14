@@ -34,23 +34,23 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="text-3xl font-bold text-white text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 text-center mb-8">
           Tuittaにログイン
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-gray-500 text-sm block mb-1">ハンドル名</label>
-            <div className="flex items-center border border-gray-600 rounded-lg focus-within:border-sky-500">
-              <span className="text-gray-500 pl-3">@</span>
+            <div className="flex items-center border border-gray-300 rounded-lg focus-within:border-[#4BACC5]">
+              <span className="text-gray-400 pl-3">@</span>
               <input
                 type="text"
                 value={handle}
                 onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))}
                 required
-                className="w-full bg-transparent px-2 py-2.5 text-white outline-none"
+                className="w-full bg-transparent px-2 py-2.5 text-gray-900 outline-none"
                 placeholder="tanaka"
               />
             </div>
@@ -63,7 +63,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-transparent border border-gray-600 rounded-lg px-3 py-2.5 text-white outline-none focus:border-sky-500"
+              className="w-full bg-transparent border border-gray-300 rounded-lg px-3 py-2.5 text-gray-900 outline-none focus:border-[#4BACC5]"
             />
           </div>
 
@@ -74,7 +74,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white font-bold py-2.5 rounded-full transition-colors"
+            className="w-full bg-[#4BACC5] hover:bg-[#3a9ab3] disabled:opacity-50 text-white font-bold py-2.5 rounded-full transition-colors"
           >
             {isLoading ? "ログイン中..." : "ログイン"}
           </button>
@@ -82,7 +82,7 @@ export default function LoginPage() {
 
         <p className="text-gray-500 text-sm text-center mt-6">
           アカウントをお持ちでないですか？{" "}
-          <Link href="/signup" className="text-sky-500 hover:underline">
+          <Link href="/signup" className="text-[#4BACC5] hover:underline">
             登録する
           </Link>
         </p>

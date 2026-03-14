@@ -21,7 +21,16 @@ export async function GET(
   );
 
   type Row = Record<string, unknown>;
-  const toComment = (row: Row) => ({
+  type CommentData = {
+    id: string;
+    user: { id: string; name: unknown; handle: unknown; avatarColor: unknown; avatarImage: unknown };
+    content: unknown;
+    createdAt: string;
+    parentId: string | null;
+    children: CommentData[];
+  };
+
+  const toComment = (row: Row): CommentData => ({
     id: String(row.id),
     user: {
       id: String(row.user_id),
@@ -33,12 +42,12 @@ export async function GET(
     content: row.content,
     createdAt: new Date(row.created_at as string).toISOString(),
     parentId: row.parent_id ? String(row.parent_id) : null,
-    children: [] as ReturnType<typeof toComment>[],
+    children: [],
   });
 
   const all = rows.map(toComment);
   const topLevel = all.filter((c) => !c.parentId);
-  const childMap = new Map<string, typeof all>();
+  const childMap = new Map<string, CommentData[]>();
   for (const c of all) {
     if (c.parentId) {
       const arr = childMap.get(c.parentId) || [];
