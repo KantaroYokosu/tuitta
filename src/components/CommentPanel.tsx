@@ -98,7 +98,11 @@ export default function CommentPanel({ postId, currentUserId, onClose }: Comment
         </div>
         <p className="text-primary text-sm mt-0.5 whitespace-pre-wrap">{comment.content}</p>
         {!isChild && (
-          <button onClick={() => setReplyTo({ id: comment.id, name: comment.user.name })} className="text-muted hover:text-accent text-xs mt-1 transition-colors">
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setReplyTo({ id: comment.id, name: comment.user.name }); }}
+            className="text-muted hover:text-accent text-sm mt-1 py-1 px-2 -ml-2 rounded transition-colors cursor-pointer"
+          >
             返信
           </button>
         )}
