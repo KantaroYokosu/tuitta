@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Post, User } from "@/types";
 import Sidebar from "@/components/Sidebar";
 import PostCard from "@/components/PostCard";
+import CommentPanel from "@/components/CommentPanel";
 import ImageCropper from "@/components/ImageCropper";
 import Link from "next/link";
 
@@ -39,6 +40,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [notFound, setNotFound] = useState(false);
+  const [activeCommentPostId, setActiveCommentPostId] = useState<string | null>(null);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState("");
@@ -210,7 +212,12 @@ export default function ProfilePage() {
 
   const handleDelete = async (id: string) => {
     await fetch(`/api/posts/${id}`, { method: "DELETE" });
+    if (activeCommentPostId === id) setActiveCommentPostId(null);
     setPosts(posts.filter((p) => p.id !== id));
+  };
+
+  const handleComment = (id: string) => {
+    setActiveCommentPostId(activeCommentPostId === id ? null : id);
   };
 
   if (notFound) {
@@ -401,12 +408,28 @@ export default function ProfilePage() {
                 onLike={handleLike}
                 onRepost={handleRepost}
                 onDelete={handleDelete}
+                onComment={handleComment}
                 isOwn={post.user.id === user.id}
+                isCommentOpen={activeCommentPostId === post.id}
               />
             ))
           )}
         </div>
       </main>
+
+      {/* 右サイドバー: コメントパネル */}
+      {activeCommentPostId && currentUser && (
+        <div className="w-80 shrink-0 hidden xl:block">
+          <div className="fixed w-80 h-screen border-l border-gray-700">
+            <CommentPanel
+              key={activeCommentPostId}
+              postId={activeCommentPostId}
+              currentUserId={currentUser.id}
+              onClose={() => setActiveCommentPostId(null)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* クロッパーモーダル */}
       {cropTarget && (

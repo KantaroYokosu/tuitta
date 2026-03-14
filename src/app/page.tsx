@@ -6,19 +6,19 @@ import { Post, User } from "@/types";
 import Sidebar from "@/components/Sidebar";
 import ComposePost from "@/components/ComposePost";
 import PostCard from "@/components/PostCard";
+import CommentPanel from "@/components/CommentPanel";
 
 export default function Home() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [activeCommentPostId, setActiveCommentPostId] = useState<string | null>(null);
 
-  // まず「今ログインしているのは誰？」を確認
   useEffect(() => {
     const checkAuth = async () => {
       const res = await fetch("/api/auth/me");
       const data = await res.json();
       if (!data.user) {
-        // ログインしていない → ログインページへ
         router.push("/login");
         return;
       }
@@ -91,10 +91,14 @@ export default function Home() {
 
   const handleDelete = async (id: string) => {
     await fetch(`/api/posts/${id}`, { method: "DELETE" });
+    if (activeCommentPostId === id) setActiveCommentPostId(null);
     await fetchPosts();
   };
 
-  // ログイン確認中
+  const handleComment = (id: string) => {
+    setActiveCommentPostId(activeCommentPostId === id ? null : id);
+  };
+
   if (!currentUser) {
     return (
       <div className="min-h-screen bg-black flex justify-center items-center">
@@ -120,19 +124,34 @@ export default function Home() {
               onLike={handleLike}
               onRepost={handleRepost}
               onDelete={handleDelete}
+              onComment={handleComment}
               isOwn={post.user.id === currentUser.id}
+              isCommentOpen={activeCommentPostId === post.id}
             />
           ))}
         </div>
       </main>
+
+      {/* 右サイドバー: コメントが開いてたらコメント欄、なければトレンド */}
       <div className="w-80 shrink-0 hidden xl:block">
-        <div className="fixed w-80 p-4">
-          <div className="bg-gray-900 rounded-2xl p-4">
-            <h2 className="text-xl font-bold text-white mb-4">トレンド</h2>
-            <TrendItem category="テクノロジー" topic="Next.js" posts="1.2万" />
-            <TrendItem category="プログラミング" topic="TypeScript" posts="8,500" />
-            <TrendItem category="トレンド" topic="React" posts="5,200" />
-          </div>
+        <div className="fixed w-80 h-screen border-l border-gray-700">
+          {activeCommentPostId ? (
+            <CommentPanel
+              key={activeCommentPostId}
+              postId={activeCommentPostId}
+              currentUserId={currentUser.id}
+              onClose={() => setActiveCommentPostId(null)}
+            />
+          ) : (
+            <div className="p-4">
+              <div className="bg-gray-900 rounded-2xl p-4">
+                <h2 className="text-xl font-bold text-white mb-4">トレンド</h2>
+                <TrendItem category="テクノロジー" topic="Next.js" posts="1.2万" />
+                <TrendItem category="プログラミング" topic="TypeScript" posts="8,500" />
+                <TrendItem category="トレンド" topic="React" posts="5,200" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
