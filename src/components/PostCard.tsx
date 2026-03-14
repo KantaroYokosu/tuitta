@@ -82,7 +82,7 @@ export default function PostCard({ post, currentUserId, onLike, onRepost, onDele
 
   return (
     <>
-      <div className="border-b border-gray-700 p-4 hover:bg-gray-900/50 transition-colors">
+      <div className="border-b border-gray-700 p-4 hover:bg-gray-900/50 transition-colors relative">
         <div className="flex gap-3">
           {post.user.avatarImage ? (
             <img
@@ -194,9 +194,9 @@ export default function PostCard({ post, currentUserId, onLike, onRepost, onDele
           </div>
         </div>
 
-        {/* コメント欄: PC版は右に、モバイルは下に */}
+        {/* コメント欄 */}
         {showComments && (
-          <div className="mt-3 ml-13 border-t border-gray-700 pt-3 lg:absolute lg:left-full lg:top-0 lg:ml-2 lg:border-t-0 lg:border lg:border-gray-700 lg:rounded-xl lg:bg-gray-900 lg:p-4 lg:w-80 lg:shadow-xl">
+          <div className="mt-3 ml-13 border-t border-gray-700 pt-3">
             {loadingComments ? (
               <p className="text-gray-500 text-sm">読み込み中...</p>
             ) : (
