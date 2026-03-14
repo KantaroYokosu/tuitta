@@ -130,8 +130,11 @@ export default function PostCard({ post, onLike, onRepost, onDelete, isOwn }: Po
                     : "text-gray-500 hover:text-green-500"
                 }`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                  <path d="M4 12v1a3 3 0 003 3h10M17 10l-3-3m3 3l-3 3M16 8v1a3 3 0 01-3 3H3M3 10l3-3M3 10l3 3" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                  <path d="M17 1l4 4-4 4" />
+                  <path d="M3 11V9a4 4 0 014-4h14" />
+                  <path d="M7 23l-4-4 4-4" />
+                  <path d="M21 13v2a4 4 0 01-4 4H3" />
                 </svg>
                 <span className="text-sm">{post.reposts}</span>
               </button>
