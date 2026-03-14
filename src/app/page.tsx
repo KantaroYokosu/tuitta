@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Post, User } from "@/types";
+import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import ComposePost from "@/components/ComposePost";
 import PostCard from "@/components/PostCard";
@@ -85,7 +86,10 @@ export default function Home() {
       <Sidebar currentUser={currentUser} />
 
       <main className="main-column">
-        <header className="sticky-header">
+        <header className="sticky-header flex items-center gap-3">
+          <Link href={`/${encodeURIComponent(currentUser.handle)}`} className="lg:hidden">
+            <img src="/logo.png" alt="Tuitta" className="w-8 h-8 rounded-lg" />
+          </Link>
           <h1 className="text-xl font-bold text-primary">ホーム</h1>
         </header>
 

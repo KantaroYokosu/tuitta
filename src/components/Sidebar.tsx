@@ -21,8 +21,9 @@ export default function Sidebar({ currentUser }: SidebarProps) {
       <div className="fixed w-64 h-screen flex flex-col justify-between py-4 px-3">
         {/* ロゴ */}
         <div>
-          <Link href="/" className="p-3 mb-2 block">
+          <Link href={`/${encodeURIComponent(currentUser.handle)}`} className="flex items-center gap-2 p-3 mb-2">
             <img src="/logo.png" alt="Tuitta" className="w-10 h-10 rounded-lg" />
+            <span className="text-xl font-bold text-accent">Tuitta</span>
           </Link>
 
           <nav className="space-y-1">
