@@ -27,11 +27,11 @@ export async function DELETE(
     return NextResponse.json({ error: "投稿が見つかりません" }, { status: 404 });
   }
 
-  if (rows[0].user_id !== sessionUser.id) {
+  if (String(rows[0].user_id) !== String(sessionUser.id)) {
     return NextResponse.json({ error: "他人の投稿は削除できません" }, { status: 403 });
   }
 
-  await pool.query("DELETE FROM posts WHERE id = $1", [id]);
+  await pool.query("DELETE FROM posts WHERE id = $1 AND user_id = $2", [id, sessionUser.id]);
 
   return NextResponse.json({ ok: true });
 }

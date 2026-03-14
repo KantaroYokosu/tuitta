@@ -64,7 +64,8 @@ export default function Home() {
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/posts/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/posts/${id}`, { method: "DELETE" });
+    if (!res.ok) return;
     if (activeCommentPostId === id) setActiveCommentPostId(null);
     await fetchPosts();
   };

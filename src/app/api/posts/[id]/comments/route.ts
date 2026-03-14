@@ -113,11 +113,11 @@ export async function DELETE(
     return NextResponse.json({ error: "コメントが見つかりません" }, { status: 404 });
   }
 
-  if (rows[0].user_id !== sessionUser.id) {
+  if (String(rows[0].user_id) !== String(sessionUser.id)) {
     return NextResponse.json({ error: "他人のコメントは削除できません" }, { status: 403 });
   }
 
-  await pool.query("DELETE FROM comments WHERE id = $1", [commentId]);
+  await pool.query("DELETE FROM comments WHERE id = $1 AND user_id = $2", [commentId, sessionUser.id]);
 
   return NextResponse.json({ ok: true });
 }

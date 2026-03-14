@@ -48,7 +48,8 @@ export default function BookmarksPage() {
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/posts/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/posts/${id}`, { method: "DELETE" });
+    if (!res.ok) return;
     if (activeCommentPostId === id) setActiveCommentPostId(null);
     setPosts(posts.filter((p) => p.id !== id));
   };
