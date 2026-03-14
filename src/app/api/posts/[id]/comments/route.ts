@@ -20,7 +20,8 @@ export async function GET(
     [id]
   );
 
-  const comments = rows.map((row: Record<string, unknown>) => ({
+  type Row = Record<string, unknown>;
+  const toComment = (row: Row) => ({
     id: String(row.id),
     user: {
       id: String(row.user_id),
@@ -31,9 +32,25 @@ export async function GET(
     },
     content: row.content,
     createdAt: new Date(row.created_at as string).toISOString(),
-  }));
+    parentId: row.parent_id ? String(row.parent_id) : null,
+    children: [] as ReturnType<typeof toComment>[],
+  });
 
-  return NextResponse.json(comments);
+  const all = rows.map(toComment);
+  const topLevel = all.filter((c) => !c.parentId);
+  const childMap = new Map<string, typeof all>();
+  for (const c of all) {
+    if (c.parentId) {
+      const arr = childMap.get(c.parentId) || [];
+      arr.push(c);
+      childMap.set(c.parentId, arr);
+    }
+  }
+  for (const t of topLevel) {
+    t.children = childMap.get(t.id) || [];
+  }
+
+  return NextResponse.json(topLevel);
 }
 
 // ========================================
@@ -49,14 +66,14 @@ export async function POST(
     return NextResponse.json({ error: "ログインしてください" }, { status: 401 });
   }
 
-  const { content } = await request.json();
+  const { content, parentId } = await request.json();
   if (!content || content.trim() === "") {
     return NextResponse.json({ error: "コメントを入力してください" }, { status: 400 });
   }
 
   await pool.query(
-    "INSERT INTO comments (user_id, post_id, content) VALUES ($1, $2, $3)",
-    [sessionUser.id, id, content]
+    "INSERT INTO comments (user_id, post_id, content, parent_id) VALUES ($1, $2, $3, $4)",
+    [sessionUser.id, id, content, parentId || null]
   );
 
   return NextResponse.json({ ok: true });
