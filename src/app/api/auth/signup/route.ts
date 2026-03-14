@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { RowDataPacket, ResultSetHeader } from "mysql2";
 import bcrypt from "bcryptjs";
 
 // ========================================
@@ -23,8 +22,8 @@ export async function POST(request: Request) {
   const fullHandle = handle.startsWith("@") ? handle : `@${handle}`;
 
   // 同じハンドルが既に存在しないかチェック
-  const [existing] = await pool.query<RowDataPacket[]>(
-    "SELECT id FROM users WHERE handle = ?",
+  const { rows: existing } = await pool.query(
+    "SELECT id FROM users WHERE handle = $1",
     [fullHandle]
   );
 
@@ -35,18 +34,18 @@ export async function POST(request: Request) {
   // パスワードをハッシュ化（ミンチにする）
   const passwordHash = await bcrypt.hash(password, 10);
 
-  // ユーザーを金庫に登録
-  const [result] = await pool.query<ResultSetHeader>(
-    "INSERT INTO users (name, handle, password_hash) VALUES (?, ?, ?)",
+  // ユーザーを金庫に登録（RETURNING id でPostgreSQLから挿入されたIDを取得）
+  const { rows: result } = await pool.query(
+    "INSERT INTO users (name, handle, password_hash) VALUES ($1, $2, $3) RETURNING id",
     [name, fullHandle, passwordHash]
   );
 
   // ログイン状態にする（腕輪をつける）
   const response = NextResponse.json({ ok: true });
-  response.cookies.set("userId", String(result.insertId), {
-    httpOnly: true,  // JavaScriptからアクセスできないようにする（セキュリティ）
+  response.cookies.set("userId", String(result[0].id), {
+    httpOnly: true,
     path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 7日間有効
+    maxAge: 60 * 60 * 24 * 7,
   });
 
   return response;

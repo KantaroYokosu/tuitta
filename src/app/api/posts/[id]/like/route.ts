@@ -10,8 +10,7 @@ export async function POST(
 ) {
   const { id } = await params;
 
-  // 金庫番に「伝票番号○番のいいね数を1つ増やして」と指示
-  await pool.query("UPDATE posts SET likes = likes + 1 WHERE id = ?", [id]);
+  await pool.query("UPDATE posts SET likes = likes + 1 WHERE id = $1", [id]);
 
   return NextResponse.json({ ok: true });
 }
@@ -25,9 +24,8 @@ export async function DELETE(
 ) {
   const { id } = await params;
 
-  // 金庫番に「伝票番号○番のいいね数を1つ減らして」と指示
   await pool.query(
-    "UPDATE posts SET likes = GREATEST(likes - 1, 0) WHERE id = ?",
+    "UPDATE posts SET likes = GREATEST(likes - 1, 0) WHERE id = $1",
     [id]
   );
 

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { RowDataPacket } from "mysql2";
 
 // ========================================
 // GET /api/users/@tanaka — 「このユーザーの情報をください」窓口
@@ -10,12 +9,10 @@ export async function GET(
   { params }: { params: Promise<{ handle: string }> }
 ) {
   const { handle } = await params;
-  // handle は URL から来るので "@" が "%40" にエンコードされている場合がある
   const decodedHandle = decodeURIComponent(handle);
 
-  // ユーザー情報を取得
-  const [users] = await pool.query<RowDataPacket[]>(
-    "SELECT * FROM users WHERE handle = ?",
+  const { rows: users } = await pool.query(
+    "SELECT * FROM users WHERE handle = $1",
     [decodedHandle]
   );
 
@@ -25,9 +22,8 @@ export async function GET(
 
   const user = users[0];
 
-  // そのユーザーの投稿を取得
-  const [posts] = await pool.query<RowDataPacket[]>(
-    "SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC",
+  const { rows: posts } = await pool.query(
+    "SELECT * FROM posts WHERE user_id = $1 ORDER BY created_at DESC",
     [user.id]
   );
 
@@ -42,7 +38,7 @@ export async function GET(
       bio: user.bio || "",
       createdAt: new Date(user.created_at).toISOString(),
     },
-    posts: posts.map((row) => ({
+    posts: posts.map((row: Record<string, unknown>) => ({
       id: String(row.id),
       user: {
         id: String(user.id),
@@ -55,7 +51,7 @@ export async function GET(
       imageUrl: row.image_url || undefined,
       likes: row.likes,
       isLiked: false,
-      createdAt: new Date(row.created_at).toISOString(),
+      createdAt: new Date(row.created_at as string).toISOString(),
     })),
   });
 }
@@ -72,9 +68,8 @@ export async function PUT(
   const body = await request.json();
   const { name, bio, avatarImage, headerImage } = body;
 
-  // 金庫番に「このユーザーの情報を書き換えて」と指示
   await pool.query(
-    "UPDATE users SET name = ?, bio = ?, avatar_image = ?, header_image = ? WHERE handle = ?",
+    "UPDATE users SET name = $1, bio = $2, avatar_image = $3, header_image = $4 WHERE handle = $5",
     [name, bio, avatarImage || null, headerImage || null, decodedHandle]
   );
 

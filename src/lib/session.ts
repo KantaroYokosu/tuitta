@@ -1,10 +1,5 @@
 import { cookies } from "next/headers";
 import pool from "@/lib/db";
-import { RowDataPacket } from "mysql2";
-
-// セッション = 「入店済みの腕輪」
-// ここではブラウザの Cookie に userId を保存するシンプルな方式
-// （本番アプリでは JWT や暗号化セッションを使うべき）
 
 export type SessionUser = {
   id: number;
@@ -14,7 +9,6 @@ export type SessionUser = {
   avatarImage?: string;
 };
 
-// Cookie からログイン中のユーザーを取得する
 export async function getSessionUser(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
   const userIdCookie = cookieStore.get("userId");
@@ -24,8 +18,8 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   const userId = Number(userIdCookie.value);
   if (isNaN(userId)) return null;
 
-  const [rows] = await pool.query<RowDataPacket[]>(
-    "SELECT id, name, handle, avatar_color, avatar_image FROM users WHERE id = ?",
+  const { rows } = await pool.query(
+    "SELECT id, name, handle, avatar_color, avatar_image FROM users WHERE id = $1",
     [userId]
   );
 

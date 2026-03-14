@@ -10,8 +10,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
 
-  // 金庫番に「伝票番号○番を棚から捨てて」と指示
-  await pool.query("DELETE FROM posts WHERE id = ?", [id]);
+  await pool.query("DELETE FROM posts WHERE id = $1", [id]);
 
   return NextResponse.json({ ok: true });
 }
