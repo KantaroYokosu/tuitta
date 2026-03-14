@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { User } from "@/types";
 import { formatTimeAgo } from "@/lib/utils";
 
@@ -22,7 +22,6 @@ export default function CommentPanel({ postId, currentUserId, onClose }: Comment
   const [commentText, setCommentText] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const composingRef = useRef(false);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -60,12 +59,8 @@ export default function CommentPanel({ postId, currentUserId, onClose }: Comment
     setComments(comments.filter((c) => c.id !== commentId));
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !composingRef.current) {
-      e.preventDefault();
-      submitComment();
-    }
-  };
+  // Enterキーでは送信しない（日本語変換の確定と区別できないため）
+  // 送信は返信ボタンのみ
 
   return (
     <div className="flex flex-col h-full">
@@ -121,9 +116,6 @@ export default function CommentPanel({ postId, currentUserId, onClose }: Comment
             type="text"
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
-            onCompositionStart={() => { composingRef.current = true; }}
-            onCompositionEnd={() => { composingRef.current = false; }}
-            onKeyDown={handleKeyDown}
             placeholder="コメントを入力..."
             maxLength={140}
             className="flex-1 bg-transparent border border-gray-600 rounded-full px-3 py-2 text-white text-sm outline-none focus:border-sky-500"
