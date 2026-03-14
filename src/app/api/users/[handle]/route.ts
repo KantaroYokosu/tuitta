@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { getSessionUser } from "@/lib/session";
 
 // ========================================
 // GET /api/users/@tanaka — 「このユーザーの情報をください」窓口
@@ -11,6 +12,8 @@ export async function GET(
   const { handle } = await params;
   const decodedHandle = decodeURIComponent(handle);
 
+  const sessionUser = await getSessionUser();
+
   const { rows: users } = await pool.query(
     "SELECT * FROM users WHERE handle = $1",
     [decodedHandle]
@@ -21,6 +24,28 @@ export async function GET(
   }
 
   const user = users[0];
+
+  // フォロワー数（この人をフォローしている人の数）
+  const { rows: followerCount } = await pool.query(
+    "SELECT COUNT(*) FROM follows WHERE following_id = $1",
+    [user.id]
+  );
+
+  // フォロー数（この人がフォローしている人の数）
+  const { rows: followingCount } = await pool.query(
+    "SELECT COUNT(*) FROM follows WHERE follower_id = $1",
+    [user.id]
+  );
+
+  // 自分がこの人をフォローしているか
+  let isFollowing = false;
+  if (sessionUser) {
+    const { rows: followCheck } = await pool.query(
+      "SELECT id FROM follows WHERE follower_id = $1 AND following_id = $2",
+      [sessionUser.id, user.id]
+    );
+    isFollowing = followCheck.length > 0;
+  }
 
   const { rows: posts } = await pool.query(
     "SELECT * FROM posts WHERE user_id = $1 ORDER BY created_at DESC",
@@ -37,6 +62,9 @@ export async function GET(
       headerImage: user.header_image || undefined,
       bio: user.bio || "",
       createdAt: new Date(user.created_at).toISOString(),
+      followers: Number(followerCount[0].count),
+      following: Number(followingCount[0].count),
+      isFollowing,
     },
     posts: posts.map((row: Record<string, unknown>) => ({
       id: String(row.id),

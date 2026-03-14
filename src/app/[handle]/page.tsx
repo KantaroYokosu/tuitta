@@ -17,6 +17,9 @@ type UserProfile = {
   headerImage?: string;
   bio: string;
   createdAt: string;
+  followers: number;
+  following: number;
+  isFollowing: boolean;
 };
 
 function readFileAsDataURL(file: File): Promise<string> {
@@ -147,6 +150,26 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
+  const handleFollow = async () => {
+    if (!user) return;
+
+    if (user.isFollowing) {
+      await fetch("/api/follow", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ followingId: user.id }),
+      });
+      setUser({ ...user, isFollowing: false, followers: user.followers - 1 });
+    } else {
+      await fetch("/api/follow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ followingId: user.id }),
+      });
+      setUser({ ...user, isFollowing: true, followers: user.followers + 1 });
+    }
+  };
+
   const handleLike = async (id: string) => {
     const post = posts.find((p) => p.id === id);
     if (!post) return;
@@ -263,6 +286,18 @@ export default function ProfilePage() {
                 プロフィールを編集
               </button>
             )}
+            {!isOwnProfile && currentUser && (
+              <button
+                onClick={handleFollow}
+                className={`font-bold px-4 py-1.5 rounded-full transition-colors text-sm ${
+                  user.isFollowing
+                    ? "border border-gray-600 text-white hover:border-red-500 hover:text-red-500"
+                    : "bg-white text-black hover:bg-gray-200"
+                }`}
+              >
+                {user.isFollowing ? "フォロー中" : "フォローする"}
+              </button>
+            )}
           </div>
 
           {isEditing ? (
@@ -312,6 +347,17 @@ export default function ProfilePage() {
               {user.bio && (
                 <p className="text-white mt-3">{user.bio}</p>
               )}
+
+              <div className="flex gap-4 mt-3">
+                <span className="text-sm">
+                  <span className="text-white font-bold">{user.following}</span>
+                  <span className="text-gray-500"> フォロー</span>
+                </span>
+                <span className="text-sm">
+                  <span className="text-white font-bold">{user.followers}</span>
+                  <span className="text-gray-500"> フォロワー</span>
+                </span>
+              </div>
 
               <p className="text-gray-500 text-sm mt-3">
                 {new Date(user.createdAt).toLocaleDateString("ja-JP", {
