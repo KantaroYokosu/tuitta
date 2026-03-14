@@ -65,7 +65,7 @@ export default function ComposePost({ onPost, currentUser }: ComposePostProps) {
           )}
 
           {/* ツールバー */}
-          <div className="flex items-center justify-between divider pt-3 mt-2">
+          <div className="flex items-center justify-between border-t pt-3 mt-2" style={{ borderColor: "var(--border)" }}>
             <div className="flex items-center gap-2">
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
               <button onClick={() => fileInputRef.current?.click()} className="text-accent hover:bg-accent/10 rounded-full p-2 transition-colors" title="画像を追加">
