@@ -48,9 +48,23 @@ export async function GET(
   }
 
   const { rows: posts } = await pool.query(
-    "SELECT * FROM posts WHERE user_id = $1 ORDER BY created_at DESC",
+    `SELECT p.*,
+       (SELECT COUNT(*) FROM reposts r WHERE r.post_id = p.id) AS repost_count,
+       (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count
+     FROM posts p
+     WHERE p.user_id = $1
+     ORDER BY p.created_at DESC`,
     [user.id]
   );
+
+  let repostedIds: Set<number> = new Set();
+  if (sessionUser) {
+    const { rows: myReposts } = await pool.query(
+      "SELECT post_id FROM reposts WHERE user_id = $1",
+      [sessionUser.id]
+    );
+    repostedIds = new Set(myReposts.map((r: Record<string, unknown>) => Number(r.post_id)));
+  }
 
   return NextResponse.json({
     user: {
@@ -79,6 +93,9 @@ export async function GET(
       imageUrl: row.image_url || undefined,
       likes: row.likes,
       isLiked: false,
+      reposts: Number(row.repost_count),
+      isReposted: repostedIds.has(Number(row.id)),
+      comments: Number(row.comment_count),
       createdAt: new Date(row.created_at as string).toISOString(),
     })),
   });

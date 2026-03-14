@@ -13,5 +13,8 @@ export type Post = {
   createdAt: string;
   likes: number;
   isLiked: boolean;
+  reposts: number;
+  isReposted: boolean;
+  comments: number;
   imageUrl?: string;
 };

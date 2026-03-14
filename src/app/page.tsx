@@ -70,6 +70,25 @@ export default function Home() {
     );
   };
 
+  const handleRepost = async (id: string) => {
+    const post = posts.find((p) => p.id === id);
+    if (!post) return;
+
+    if (post.isReposted) {
+      await fetch(`/api/posts/${id}/repost`, { method: "DELETE" });
+    } else {
+      await fetch(`/api/posts/${id}/repost`, { method: "POST" });
+    }
+
+    setPosts(
+      posts.map((p) =>
+        p.id === id
+          ? { ...p, isReposted: !p.isReposted, reposts: p.isReposted ? p.reposts - 1 : p.reposts + 1 }
+          : p
+      )
+    );
+  };
+
   const handleDelete = async (id: string) => {
     await fetch(`/api/posts/${id}`, { method: "DELETE" });
     await fetchPosts();
@@ -98,6 +117,7 @@ export default function Home() {
               key={post.id}
               post={post}
               onLike={handleLike}
+              onRepost={handleRepost}
               onDelete={handleDelete}
               isOwn={post.user.id === currentUser.id}
             />

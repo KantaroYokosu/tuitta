@@ -2,18 +2,59 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Post } from "@/types";
+import { Post, User } from "@/types";
 import { formatTimeAgo } from "@/lib/utils";
+
+type Comment = {
+  id: string;
+  user: User;
+  content: string;
+  createdAt: string;
+};
 
 type PostCardProps = {
   post: Post;
   onLike: (id: string) => void;
+  onRepost: (id: string) => void;
   onDelete: (id: string) => void;
   isOwn: boolean;
 };
 
-export default function PostCard({ post, onLike, onDelete, isOwn }: PostCardProps) {
+export default function PostCard({ post, onLike, onRepost, onDelete, isOwn }: PostCardProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentText, setCommentText] = useState("");
+  const [commentCount, setCommentCount] = useState(post.comments);
+  const [loadingComments, setLoadingComments] = useState(false);
+
+  const toggleComments = async () => {
+    if (showComments) {
+      setShowComments(false);
+      return;
+    }
+    setLoadingComments(true);
+    const res = await fetch(`/api/posts/${post.id}/comments`);
+    const data = await res.json();
+    setComments(data);
+    setShowComments(true);
+    setLoadingComments(false);
+  };
+
+  const submitComment = async () => {
+    if (commentText.trim() === "") return;
+    await fetch(`/api/posts/${post.id}/comments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: commentText }),
+    });
+    setCommentText("");
+    // コメントを再取得
+    const res = await fetch(`/api/posts/${post.id}/comments`);
+    const data = await res.json();
+    setComments(data);
+    setCommentCount(data.length);
+  };
 
   return (
     <>
@@ -69,6 +110,33 @@ export default function PostCard({ post, onLike, onDelete, isOwn }: PostCardProp
               </div>
             )}
             <div className="flex items-center gap-6 mt-3">
+              {/* コメントボタン */}
+              <button
+                onClick={toggleComments}
+                className="flex items-center gap-1 text-gray-500 hover:text-sky-500 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                  <path d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7z" />
+                </svg>
+                <span className="text-sm">{commentCount}</span>
+              </button>
+
+              {/* リポストボタン */}
+              <button
+                onClick={() => onRepost(post.id)}
+                className={`flex items-center gap-1 transition-colors ${
+                  post.isReposted
+                    ? "text-green-500"
+                    : "text-gray-500 hover:text-green-500"
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                  <path d="M4 12v1a3 3 0 003 3h10M17 10l-3-3m3 3l-3 3M16 8v1a3 3 0 01-3 3H3M3 10l3-3M3 10l3 3" />
+                </svg>
+                <span className="text-sm">{post.reposts}</span>
+              </button>
+
+              {/* いいねボタン */}
               <button
                 onClick={() => onLike(post.id)}
                 className={`flex items-center gap-1 group transition-colors ${
@@ -93,18 +161,59 @@ export default function PostCard({ post, onLike, onDelete, isOwn }: PostCardProp
                 </svg>
                 <span className="text-sm">{post.likes}</span>
               </button>
-              <button className="flex items-center gap-1 text-gray-500 hover:text-sky-500 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                  <path d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7z" />
-                </svg>
-                <span className="text-sm">0</span>
-              </button>
-              <button className="flex items-center gap-1 text-gray-500 hover:text-green-500 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                  <path d="M4 12v1a3 3 0 003 3h10M17 10l-3-3m3 3l-3 3M16 8v1a3 3 0 01-3 3H3M3 10l3-3M3 10l3 3" />
-                </svg>
-              </button>
             </div>
+
+            {/* コメント欄 */}
+            {showComments && (
+              <div className="mt-3 border-t border-gray-700 pt-3">
+                {loadingComments ? (
+                  <p className="text-gray-500 text-sm">読み込み中...</p>
+                ) : (
+                  <>
+                    {comments.length === 0 && (
+                      <p className="text-gray-500 text-sm mb-3">コメントはまだありません</p>
+                    )}
+                    {comments.map((comment) => (
+                      <div key={comment.id} className="flex gap-2 mb-3">
+                        {comment.user.avatarImage ? (
+                          <img src={comment.user.avatarImage} alt={comment.user.name} className="w-6 h-6 rounded-full object-cover shrink-0" />
+                        ) : (
+                          <div className={`w-6 h-6 rounded-full ${comment.user.avatarColor} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+                            {comment.user.name[0]}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-white text-sm">{comment.user.name}</span>
+                            <span className="text-gray-500 text-xs">{comment.user.handle}</span>
+                            <span className="text-gray-500 text-xs">{formatTimeAgo(comment.createdAt)}</span>
+                          </div>
+                          <p className="text-white text-sm">{comment.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex gap-2 mt-2">
+                      <input
+                        type="text"
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && submitComment()}
+                        placeholder="コメントを入力..."
+                        maxLength={140}
+                        className="flex-1 bg-transparent border border-gray-600 rounded-full px-3 py-1.5 text-white text-sm outline-none focus:border-sky-500"
+                      />
+                      <button
+                        onClick={submitComment}
+                        disabled={commentText.trim() === ""}
+                        className="bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white font-bold px-4 py-1.5 rounded-full text-sm transition-colors"
+                      >
+                        返信
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,16 +1,31 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { getSessionUser } from "@/lib/session";
 
 // ========================================
 // GET /api/posts — 「投稿一覧をください」窓口
 // ========================================
 export async function GET() {
+  const sessionUser = await getSessionUser();
+
   const { rows } = await pool.query(
-    `SELECT p.*, u.name AS user_name, u.handle, u.avatar_color, u.avatar_image
+    `SELECT p.*, u.name AS user_name, u.handle, u.avatar_color, u.avatar_image,
+       (SELECT COUNT(*) FROM reposts r WHERE r.post_id = p.id) AS repost_count,
+       (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count
      FROM posts p
      JOIN users u ON p.user_id = u.id
      ORDER BY p.created_at DESC`
   );
+
+  // 自分がリポスト済みの投稿IDを取得
+  let repostedIds: Set<number> = new Set();
+  if (sessionUser) {
+    const { rows: myReposts } = await pool.query(
+      "SELECT post_id FROM reposts WHERE user_id = $1",
+      [sessionUser.id]
+    );
+    repostedIds = new Set(myReposts.map((r: Record<string, unknown>) => Number(r.post_id)));
+  }
 
   const posts = rows.map((row: Record<string, unknown>) => ({
     id: String(row.id),
@@ -25,6 +40,9 @@ export async function GET() {
     imageUrl: row.image_url || undefined,
     likes: row.likes,
     isLiked: false,
+    reposts: Number(row.repost_count),
+    isReposted: repostedIds.has(Number(row.id)),
+    comments: Number(row.comment_count),
     createdAt: new Date(row.created_at as string).toISOString(),
   }));
 
