@@ -14,13 +14,14 @@ type Comment = {
 
 type PostCardProps = {
   post: Post;
+  currentUserId: string;
   onLike: (id: string) => void;
   onRepost: (id: string) => void;
   onDelete: (id: string) => void;
   isOwn: boolean;
 };
 
-export default function PostCard({ post, onLike, onRepost, onDelete, isOwn }: PostCardProps) {
+export default function PostCard({ post, currentUserId, onLike, onRepost, onDelete, isOwn }: PostCardProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -59,6 +60,17 @@ export default function PostCard({ post, onLike, onRepost, onDelete, isOwn }: Po
     setComments(data);
     setCommentCount(data.length);
     setSubmitting(false);
+  };
+
+  const deleteComment = async (commentId: string) => {
+    await fetch(`/api/posts/${post.id}/comments`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ commentId }),
+    });
+    const updated = comments.filter((c) => c.id !== commentId);
+    setComments(updated);
+    setCommentCount(updated.length);
   };
 
   return (
@@ -182,7 +194,7 @@ export default function PostCard({ post, onLike, onRepost, onDelete, isOwn }: Po
                       <p className="text-gray-500 text-sm mb-3">コメントはまだありません</p>
                     )}
                     {comments.map((comment) => (
-                      <div key={comment.id} className="flex gap-2 mb-3">
+                      <div key={comment.id} className="flex gap-2 mb-3 group/comment">
                         {comment.user.avatarImage ? (
                           <img src={comment.user.avatarImage} alt={comment.user.name} className="w-6 h-6 rounded-full object-cover shrink-0" />
                         ) : (
@@ -195,6 +207,17 @@ export default function PostCard({ post, onLike, onRepost, onDelete, isOwn }: Po
                             <span className="font-bold text-white text-sm">{comment.user.name}</span>
                             <span className="text-gray-500 text-xs">{comment.user.handle}</span>
                             <span className="text-gray-500 text-xs">{formatTimeAgo(comment.createdAt)}</span>
+                            {comment.user.id === currentUserId && (
+                              <button
+                                onClick={() => deleteComment(comment.id)}
+                                className="ml-auto text-gray-500 hover:text-red-500 transition-colors opacity-0 group-hover/comment:opacity-100"
+                                title="コメントを削除"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                  <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6" />
+                                </svg>
+                              </button>
+                            )}
                           </div>
                           <p className="text-white text-sm">{comment.content}</p>
                         </div>

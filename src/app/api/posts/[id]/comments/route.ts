@@ -61,3 +61,37 @@ export async function POST(
 
   return NextResponse.json({ ok: true });
 }
+
+// ========================================
+// DELETE /api/posts/[id]/comments — 「コメントを削除します」窓口
+// ========================================
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  await params;
+  const sessionUser = await getSessionUser();
+  if (!sessionUser) {
+    return NextResponse.json({ error: "ログインしてください" }, { status: 401 });
+  }
+
+  const { commentId } = await request.json();
+
+  // 自分のコメントだけ削除できる
+  const { rows } = await pool.query(
+    "SELECT user_id FROM comments WHERE id = $1",
+    [commentId]
+  );
+
+  if (rows.length === 0) {
+    return NextResponse.json({ error: "コメントが見つかりません" }, { status: 404 });
+  }
+
+  if (rows[0].user_id !== sessionUser.id) {
+    return NextResponse.json({ error: "他人のコメントは削除できません" }, { status: 403 });
+  }
+
+  await pool.query("DELETE FROM comments WHERE id = $1", [commentId]);
+
+  return NextResponse.json({ ok: true });
+}

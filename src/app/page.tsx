@@ -116,6 +116,7 @@ export default function Home() {
             <PostCard
               key={post.id}
               post={post}
+              currentUserId={currentUser.id}
               onLike={handleLike}
               onRepost={handleRepost}
               onDelete={handleDelete}
