@@ -228,7 +228,7 @@ export default function PostCard({ post, currentUserId, onLike, onRepost, onDele
                         type="text"
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && submitComment()}
+                        onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && submitComment()}
                         placeholder="コメントを入力..."
                         maxLength={140}
                         className="flex-1 bg-transparent border border-gray-600 rounded-full px-3 py-1.5 text-white text-sm outline-none focus:border-sky-500"
